@@ -1,0 +1,45 @@
+<html>
+<head>
+	<title> MinMax </title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<pre>
+MAXIM = 1000
+MINIM = -1000
+
+def minimax(node, depth, isMaximizingPlayer, values, alpha, beta):
+
+    if depth == 3 :
+        return values[node]
+    
+    if isMaximizingPlayer :
+        bestVal = MINIM 
+        for i in range(0,2) :
+            value = minimax(node*2 + i, depth+1, False, values, alpha, beta)
+            bestVal = max( bestVal, value) 
+            alpha = max( alpha, bestVal)
+            if beta <= alpha:
+                break
+        return bestVal
+
+    else :
+        bestVal = MAXIM
+        for i in range(0,2) :
+            value = minimax(node*2 + i, depth+1, True, values, alpha, beta)
+            bestVal = min( bestVal, value) 
+            beta = min( beta, bestVal)
+            if beta <= alpha:
+                break
+        return bestVal
+
+values = [3, 5, 6, 9, 1, 2, 0, -1]
+print("The optimal Value is ")
+print(minimax(0, 0, True, values, MINIM, MAXIM
+
+))
+
+
+</pre>
+</body>
+</html>

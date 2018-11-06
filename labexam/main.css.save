@@ -1,0 +1,8 @@
+li{
+color:white;
+}
+a{
+color:#5cc8ff;
+}
+a:hover{
+color:black;

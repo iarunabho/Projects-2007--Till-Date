@@ -1,0 +1,122 @@
+<html>
+<head>
+	<title> Best First Search </title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<pre>
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package bestandastar;
+
+/**
+ *
+ * @author 
+ */
+import java.io.*;
+import java.util.*;
+
+public class Bestandastar {
+    
+    public static void main(String[] args) {
+        // TODO code application logic here
+        Scanner inp=new Scanner(System.in);
+        System.out.println("Enter the no of nodes");
+        int n=inp.nextInt();
+        int[][] map=new int[n+1][n+1];
+        for(int i=1;i<=n;i++)
+        {
+            for(int j=1;j<=n;j++)
+            {
+                map[i][j]=inp.nextInt();
+            }
+        }
+        for(int i=1;i<=n;i++)
+        {
+            for(int j=1;j<=n;j++)
+            {
+                map[j][i]=map[i][j];
+            }
+        }
+        System.out.println("Enter the source node");
+        int source=inp.nextInt();
+        System.out.println("Enter the destination node");
+        int dest=inp.nextInt();
+        int[] h=new int[n+1];
+        for(int i=1;i<=n;i++)
+        {
+            h[i]=inp.nextInt();
+        }
+        String answer="";
+        Set<node> s=new HashSet<node>();
+        String pt="";
+        pt=pt+source;
+        node start=new node(source,h[source],pt);
+        int[] visited=new int[n+1];
+        visited[source]=1;
+        s.add(start);
+        while(!s.isEmpty())
+        {
+            Iterator itr=s.iterator();
+            node eva = null;
+            int flag=0;
+            while(itr.hasNext())
+            {
+                if(flag==0)
+                {
+                    eva=(node) itr.next();
+                    flag=1;
+                    continue;
+                }
+                node check=(node)itr.next();
+                if(check.h<eva.h)
+                {
+                    eva=check;
+                }
+                
+                
+                       
+            }
+            if(eva.name==dest)
+            {
+                answer=eva.path;
+                break;
+            }
+            s.remove(eva);
+            System.out.println(eva.h+" "+eva.path+" "+eva.name);
+            String paths=eva.path;
+            for(int i=1;i<=n;i++)
+            {
+                if(map[eva.name][i]==1 && visited[i]==0)
+                {
+                    visited[i]=1;
+                    node ne=new node(i,h[i],paths+i);
+                    s.add(ne);
+                }
+            }
+            
+        }
+        System.out.println(answer);
+        
+    }
+    
+}
+class node
+{
+    int name;
+    int h;
+    String path="";
+    node(int n,int v,String s)
+    {
+        name=n;
+        h=v;
+        path=s;
+    }
+}
+
+</pre>
+</body>
+</html>

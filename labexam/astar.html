@@ -1,0 +1,112 @@
+<html>
+<head>
+	<title>Astar</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<pre>
+import sys
+import math
+
+#Dictionary of nodes - Key indicates node name, and value indicates the (x,y) coordinates of node
+nodes = {   0:[0,3],
+            1:[2,5],
+            2:[3,4],
+            3:[4,8],
+            4:[7,5],
+            5:[8,4],
+            6:[10,4],
+            7:[12,5],
+            8:[10,7],
+            9:[0,5]
+        }
+#List containing the edges present in the graph - [a,b] indicates there is an edge between node a and b
+edges = [   [0,2],
+            [0,9],
+            [1,3],
+            [1,9],
+            [2,3],
+            [2,4],
+            [2,5],
+            [4,5],
+            [4,8],
+            [5,6],
+            [6,7],
+            [6,8]
+        ]
+
+#Destination node is always 9
+dest = 9
+
+#To calulate Euclidean Heuristic
+def euclideanDistance(A, B):
+    return (math.sqrt((A[0] - B[0])**2 + (A[1] - B[1])**2))
+
+#A* algorithm to find optimal path to destination node
+def astar(source):
+    frontier    = [source]; 
+    f_cost      = [0] 
+    g_cost      = [0]
+    exploredSet = []       
+    while(frontier != []): 
+        #If destination node is reached, we break from loop
+        if(frontier[0] == dest): 
+            exploredSet.append(dest)
+            print('Total cost',f_cost[0])
+            break;  
+
+        #Else if frontier node has already been explored, we skip
+        elif frontier[0] in exploredSet:
+            frontier.pop(0)
+            g_cost.pop(0)
+            f_cost.pop(0) 
+
+        #Otherwise, we find all the children nodes for frontier 
+        #and calculate h and f
+        #Update frontier, g_cost and f_cost lists
+        else:
+            for loc1, loc2 in edges:
+                if loc1 == frontier[0]:
+                    g_tmp   = g_cost[0] + euclideanDistance(nodes[loc1], nodes[loc2])
+                    h_tmp   = euclideanDistance(nodes[loc2], nodes[dest])
+                    if not(loc2 in frontier):
+                        frontier.append(loc2)
+                        g_cost.append(g_tmp)
+                        f_cost.append(g_tmp + h_tmp)
+                elif loc2 == frontier[0]:
+                    g_tmp = g_cost[0] + euclideanDistance(nodes[loc2], nodes[loc1])
+                    h_tmp = euclideanDistance(nodes[loc1], nodes[dest])
+                    if not(loc1 in frontier):
+                        frontier.append(loc1) 
+                        g_cost.append(g_tmp)
+                        f_cost.append(g_tmp + h_tmp) 
+
+            #Add frontier node to exploredSet to avoid repetitive exploration
+            exploredSet.append(frontier[0]);
+            frontier.pop(0);
+            g_cost.pop(0);
+            f_cost.pop(0);
+            
+            #Move the node with least f_cost to the first index 
+            #of frontier, g_cost and f_cost lists
+            for index, item in enumerate(f_cost):
+                if (item == min(f_cost)):
+                    tmp = frontier[0];
+                    frontier[0] = frontier[index];
+                    frontier[index] = tmp;
+                    
+                    tmp = g_cost[0];
+                    g_cost[0] = g_cost[index];
+                    g_cost[index] = tmp;
+                    
+                    tmp = f_cost[0];
+                    f_cost[0] = f_cost[index];
+                    f_cost[index] = tmp;
+
+#Get Source node from user
+source  = int(input("\nEnter starting node (0-9) = "))                                  
+astar(source)
+</pre>
+</body>
+</html>
+

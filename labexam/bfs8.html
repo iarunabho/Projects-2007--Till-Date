@@ -1,0 +1,163 @@
+<html>
+<head>
+	<title> Breath First Search 8 Puzzle</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<pre>
+import copy
+import operator
+
+#Defining the start and goal states as a 2D array
+start = [[1,5,2],[4,8,3],[-1,7,6]]
+goal = [[1,2,3],[4,5,6],[7,8,-1]]
+childs = []
+
+#Heuristic function used (gives the number of mismatched position in the puzzle box)
+def mismatch_count(puzzle_box,goal):
+    count=0
+    for i in range(0,3):
+        for j in range(0,3):
+            if(puzzle_box[i][j]!=goal[i][j]):
+                if(puzzle_box[i][j]!=-1):
+                    count=count+1
+                else:
+                    count=count
+    return count
+
+#Defining all the moves possible in the puzzle box (up, down, left, right)
+def move_left(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x][y-1] = root[x][y-1],root[x][y]
+    return root
+
+def move_right(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x][y+1] = root[x][y+1],root[x][y]
+    return root
+
+def move_up(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x-1][y] = root[x-1][y],root[x][y]
+    return root
+
+def move_down(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x+1][y] = root[x+1][y],root[x][y]
+    return root
+
+#Returns the row and column index of the empty cell
+def star(puzzle_box):
+    for i in range(0,3):
+        for j in range (0,3):
+            if(puzzle_box[i][j]==-1):
+                return i,j
+
+#Gives the possible children for the current position of the puzzle box
+#For each position, the number of moves are limited
+def genrate_childs(puzzle_box,x,y):
+    if y==0 and x==0:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==2 and x==2:
+        child1=move_left(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==2 and x==0:
+        child1=move_left(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==0 and x==2:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==2:
+        child1=move_down(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        child3=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    elif x==0:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        child3=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    elif y==0:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        child3=move_up(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    elif x==2:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        child3=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    else:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        child3=move_up(puzzle_box,x,y)
+        child4=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3,child4]
+    return childs
+
+#Return the state of puzzle box that has minimum cost
+def set_x(open1):
+    x =[]
+    minimum = min(open1,key=lambda x:x[0])
+    min_val = minimum[0]
+    for i in open1:
+        if i[0] == min_val:
+            x.append(i)
+    return x
+
+def remove_from_open(x,open1):
+    for i in x:
+        open1.remove(i)
+    return open1
+
+def print_puzzle_box(element):
+    mismatch = element[0]
+    for j in element[1]:
+        print(*j, sep='\t')
+    print("Heuristic Cost = " + str(mismatch)+'\n')
+
+def best_first_search(root):
+    root_value=mismatch_count(root,goal)+1
+
+    #Keeps track of all the children states
+    open1 = [[root_value,root]]
+
+    #Keeps track of explored states
+    close = []
+    level = 0
+    while open1:
+        x = set_x(open1)
+        remove_from_open(x,open1)
+        for k in x:
+            #Display the current puzzle box state
+            print_puzzle_box(k)
+
+            #If goal state is reached
+            if mismatch_count(k[1],goal) == 0:
+                #print('Success')
+                return level
+
+            else:
+                s1,s2=star(k[1])
+                childs = genrate_childs(k[1],s1,s2)
+                open1 = []
+                #Calculate the cost associated with every child
+                for i in childs:
+                    value = mismatch_count(i,goal)
+                    open1.append([value,i])
+                close.append(k[1])
+        #Sort the list of children in ascending order based on cost
+        open1.sort(key=lambda x:x[0])
+        level=level+1
+    return -1
+
+print('Number of moves: ' + str(best_first_search(start)))  
+</pre>
+</body>
+
+</html>

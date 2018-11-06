@@ -1,0 +1,187 @@
+<html>
+<head>
+	<title>A Star 8 Puzzle</title>
+	<link rel="stylesheet" type="text/css" href="style.css">	
+</head>
+
+<body>
+<pre>
+
+import copy
+import operator
+
+#Defining the start and goal states as a 2D array
+start = [[1,5,2],[4,8,3],[-1,7,6]]
+goal = [[1,2,3],[4,5,6],[7,8,-1]]
+childs = []
+
+#Heuristic function used (gives the number of mismatched position in the puzzle box)
+def hamming_distance(puzzle_box,goal):
+    count=0
+    for i in range(0,3):
+        for j in range(0,3):
+            if(puzzle_box[i][j]!=goal[i][j]):
+                count=count+1
+    return count
+
+def manhattan_distance(puzzle_box,goal):
+    h_cost = 0
+    for i in range(1,9):
+        x1,y1 = star(puzzle_box,i)
+        x2,y2 = star(goal,i)
+        h_cost = h_cost + (abs(x2-x1)+abs(y2-y1))
+    return h_cost
+
+#Defining all the moves possible in the puzzle box (up, down, left, right)
+def move_left(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x][y-1] = root[x][y-1],root[x][y]
+    return root
+
+def move_right(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x][y+1] = root[x][y+1],root[x][y]
+    return root
+
+def move_up(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x-1][y] = root[x-1][y],root[x][y]
+    return root
+
+def move_down(puzzle_box,x,y):
+    root=copy.deepcopy(puzzle_box)
+    root[x][y],root[x+1][y] = root[x+1][y],root[x][y]
+    return root
+
+#Returns the row and column index of the empty cell
+def star(puzzle_box,num):
+    for i in range(0,3):
+        for j in range (0,3):
+            if(puzzle_box[i][j]==num):
+                return i,j
+
+#Gives the possible children for the current position of the puzzle box
+#For each position, the number of moves are limited
+def genrate_childs(puzzle_box,x,y):
+    if y==0 and x==0:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==2 and x==2:
+        child1=move_left(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==2 and x==0:
+        child1=move_left(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==0 and x==2:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        childs=[child1,child2]
+    elif y==2:
+        child1=move_down(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        child3=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    elif x==0:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        child3=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    elif y==0:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        child3=move_up(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    elif x==2:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_up(puzzle_box,x,y)
+        child3=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3]
+    else:
+        child1=move_right(puzzle_box,x,y)
+        child2=move_down(puzzle_box,x,y)
+        child3=move_up(puzzle_box,x,y)
+        child4=move_left(puzzle_box,x,y)
+        childs=[child1,child2,child3,child4]
+    return childs
+
+#Return the state of puzzle box that has minimum cost
+def set_x(open1):
+    x =[]
+    minimum = min(open1,key=lambda x:x[0])
+    min_val = minimum[0]
+    for i in open1:
+        if i[0] == min_val:
+            x.append(i)
+    return x
+
+def print_puzzle_box(element,f_cost,g_cost):
+    for j in element:
+        print(*j, sep='\t')
+    print("Cost = " + str(g_cost) + " + " + str(f_cost-g_cost) + "\n")
+
+#method - 1 (using hamming distance), 2 (using manhattan distance)
+def astar(root,method):
+    #Keeps track of all the children states
+    open1 = [root]
+    g_cost = [0]
+    if method == 1:
+        f_cost = [hamming_distance(root,goal)]
+    elif method == 2:
+        f_cost = [manhattan_distance(root,goal)]
+    
+
+    #Keeps track of explored states
+    close = []
+    level = 0
+    while open1:
+    #for asl in range(10):
+        #Display the current puzzle box state
+        print_puzzle_box(open1[0],f_cost[0],g_cost[0])
+
+        #If goal state is reached
+        if f_cost[0]-g_cost[0] == 0:
+            #print('Success')
+            return level
+
+        else:
+            s1,s2=star(open1[0],-1)
+            childs = genrate_childs(open1[0],s1,s2)
+            #Calculate the cost associated with every child
+            for i in childs:
+                if method == 1:
+                    h_cost = hamming_distance(i,goal)
+                elif method == 2:
+                    h_cost = manhattan_distance(i,goal)
+                g_cost.append(g_cost[0] + 1)
+                f_cost.append(g_cost[len(g_cost)-1] + h_cost)
+                open1.append(i)
+            close.append(open1[0])
+            open1.pop(0)
+            f_cost.pop(0)
+            g_cost.pop(0)
+
+        #Sort the list of children in ascending order based on cost
+        for index, item in enumerate(f_cost):
+            if (item == min(f_cost)):
+                tmp = open1[0];
+                open1[0] = open1[index];
+                open1[index] = tmp;
+                
+                tmp = g_cost[0];
+                g_cost[0] = g_cost[index];
+                g_cost[index] = tmp;
+                
+                tmp = f_cost[0];
+                f_cost[0] = f_cost[index];
+                f_cost[index] = tmp;
+        level=level+1
+    return -1
+
+print('Number of moves using Hamming Distance: ' + str(astar(start,1))) 
+print('Number of moves using Manhattan Distance: ' + str(astar(start,2)))  
+</pre>
+</body>
+</html>

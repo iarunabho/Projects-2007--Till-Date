@@ -1,0 +1,74 @@
+<html>
+
+<head>
+	<title>Ao Star</title>
+         <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<script>
+window.onload = function () {
+  // Get all the elements that match the selector as arrays
+  var copyTextareaBtn = Array.prototype.slice.call(document.querySelectorAll('.js-textareacopybtn'));
+  var copyTextarea = Array.prototype.slice.call(document.querySelectorAll('.js-copytextarea'));
+
+  // Loop through the button array and set up event handlers for each element
+  copyTextareaBtn.forEach(function(btn, idx){
+  
+    btn.addEventListener("click", function(){
+    
+      // Get the textarea who's index matches the index of the button
+      copyTextarea[idx].select();
+
+      try {
+        var msg = document.execCommand('copy') ? 'successful' : 'unsuccessful';
+        console.log('Copying text command was ' + msg);
+      } catch (err) {
+        console.log('Whoops, unable to copy');
+      } 
+      
+    });
+    
+  });
+}
+</script>
+<body>
+<pre>
+<div>
+<div class="wrapper">
+	<button class="js-textareacopybtn">Copy Code</button> 
+</div> 
+<textarea class="js-copytextarea" readonly="readonly" style="width:20%;" 
+              rows="5">
+
+% Depth-first search for AND/OR graphs. This program does not avoid infinite cycling. Procedure 'solve' finds a solution tree, procedure 'show' displayes such a tree. 'show' assumes that each node on output only takes 1 character.
+%  Depth-first AND/OR search  solve( Node, SolutionTree): find a solution tree for Node in an AND/OR graph
+:-  op( 500, xfx, :).
+:-  op( 600, xfx, ---> ).
+a ---> or:[b,c].
+b ---> and:[d,e].
+c ---> and:[f,g].
+e ---> or:[i].
+f ---> or:[i,j].
+goal(d).
+goal(g).
+goal(i).
+solve( Node, Node)  :- goal(Node).		% Solution tree of goal node is Node itself
+solve( Node, Node ---> Tree)  :-
+  Node ---> or:Nodes,               % Node is an OR-node
+  member( Node1, Nodes),            % Select a successor Node1 of Node
+  solve( Node1, Tree).
+solve( Node, Node ---> and:Trees)  :-   Node ---> and:Nodes,  solveall( Nodes, Trees).
+% solveall( [Node1,Node2, ...], [SolutionTree1,SolutionTree2, ...])
+solveall( [], []).
+solveall( [Node|Nodes], [Tree|Trees])  :-  solve( Node, Tree),  solveall( Nodes, Trees).
+%  Displaying a solution tree
+show(Tree)  :-  show(Tree,0), !.           % Indented by 0
+% show( Tree, H): display solution tree indented by H
+show( Node ---> Tree, H)  :-  !,  write(Node), write(' ---> '),  H1 is H + 7,  show( Tree, H1).
+show( and:[T], H)  :-  !,  show(T,H).
+show( and:[T|Ts], H)  :-  !,     show( T, H),  tab(H),  show( and:Ts, H).
+show( Node, H) :-   write(Node), nl.
+</textarea>
+</div>
+</pre>
+</body>
+</html>
